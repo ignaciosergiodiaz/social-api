@@ -71,14 +71,17 @@ const getFollowingUsers = ((req, res) => {
         if(err) return res.status(500).send({message: 'Error en el servidor '});
         if(!follows) return res.status(404).send({message: 'No estas siguiendo ningún usuario'});
 
-        return res.status(200).send({
-            total: total,
-            pages:Math.ceil(total/itemsPerPage),
-            follows
+        followUsersIds(req.user.sub).then((value) => {
+
+            return res.status(200).send({
+                total: total,
+                pages:Math.ceil(total/itemsPerPage),
+                follows,
+                users_following: value.following,
+                user_follow_me: value.followed
+            });
         });
-
     });
-
 });
 
 const getFollowedUsers = ((req, res) => {
@@ -104,15 +107,62 @@ const getFollowedUsers = ((req, res) => {
         if(err) return res.status(500).send({message: 'Error en el servidor '});
         if(!follows) return res.status(404).send({message: 'No te sigue ningun usuario'});
 
-        return res.status(200).send({
-            total: total,
-            pages:Math.ceil(total/itemsPerPage),
-            follows
-        });
+        followUsersIds(req.user.sub).then((value) => {
 
+            return res.status(200).send({
+                total: total,
+                pages:Math.ceil(total/itemsPerPage),
+                follows,
+                users_following: value.following,
+                user_follow_me: value.followed
+            });
+        });
     });
 
 });
+
+async function followUsersIds(user_id){
+
+    try {
+        var following = await Follow.find({ 'user': user_id }).select({ '_id': 0, '__v': 0, 'user': 0 }).exec()
+            .then((follows) => {
+ 
+                let follows_clean = []
+ 
+                follows.forEach((follow) => {
+                    follows_clean.push(follow.followed)
+                });
+ 
+                return follows_clean;
+ 
+            })
+            .catch((err) => {
+                return handleError(err);
+            });
+  
+        var followed = await Follow.find({ 'followed': user_id }).select({ '_id': 0, '__v': 0, 'followed': 0 }).exec()
+            .then((follows) => {
+ 
+                let follows_clean = []
+ 
+                follows.forEach((follow) => {
+                    follows_clean.push(follow.user)
+                });
+                return follows_clean;
+            })
+            .catch((err) => {
+                return handleError(err);
+            });
+
+        return {
+            following: following,
+            followed: followed
+        }
+ 
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 //Devolver el listado de usuarios
 
@@ -136,6 +186,10 @@ const getMyFollows = ((req, res) => {
     });
 
 });
+
+
+
+
 
 
 

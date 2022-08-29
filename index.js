@@ -4,10 +4,9 @@ const mongoose  = require('mongoose'),
            app  = require('./app'),
           port  = 3800 ; 
 
-
 mongoose.Promise = global.Promise;
 
-mongoose.connect('mongodb://localhost:27017/curso_mean_social', {useNewUrlParser:true, useUnifiedTopology: true} )
+mongoose.connect('mongodb+srv://admindb:admin1234@cluster0.ox9b8.mongodb.net/socialappdb?retryWrites=true&w=majority', {useNewUrlParser:true, useUnifiedTopology: true} )
     .then(()=>{
         console.log("La conexión se ha realizado correctamente")
 
@@ -17,6 +16,4 @@ mongoose.connect('mongodb://localhost:27017/curso_mean_social', {useNewUrlParser
             console.log("Servidor corriendo en http://localhost:3800");
         });
 
-    })
-
-    .catch(err => console.log(err));
+    }).catch(err => console.log(err));

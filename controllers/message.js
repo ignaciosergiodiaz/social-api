@@ -18,7 +18,7 @@ function saveMessage(req, res) {
     if(!params.text || !params.receiver) return res.status(200).send({message: 'Envia los datos necesarios'});
 
     var message = new Message();
-    message.emmiter = req.user.sub;
+    message.emitter = req.user.sub;
     message.receiver = params.receiver;
     message.text = params.text ;
     message.created_at = moment().unix();
@@ -30,7 +30,7 @@ function saveMessage(req, res) {
 
         res.status(200).send({message: messageStored});
 
-    })
+    });
 
 }
 
@@ -46,7 +46,7 @@ function getReceivedMessages(req, res){
 
     let itemsPerPage = 4;
 
-    Message.find({receiver: userId}).populate('emmiter', 'name surname image nick _id').paginate(page, itemsPerPage, (err, messages, total) => {
+    Message.find({receiver: userId}).populate('receiver emitter', 'name surname image nick _id').sort('-created_at').paginate(page, itemsPerPage, (err, messages, total) => {
 
         if(err) return res.status(500).send({messages: 'Error en la petición'});
         if(!messages) return res.status(404).send({messages: 'No hay mensajes'});
@@ -61,7 +61,7 @@ function getReceivedMessages(req, res){
 }
 
 
-function getEmmiterMessage(req, res){
+function getEmitterMessages(req, res){
 
     const userId = req.user.sub ;
 
@@ -73,7 +73,7 @@ function getEmmiterMessage(req, res){
 
     let itemsPerPage = 4;
 
-    Message.find({emmiter: userId}).populate('emmiter receiver', 'name surname image nick _id').paginate(page, itemsPerPage, (err, messages, total) => {
+    Message.find({emitter: userId}).populate('emitter receiver', 'name surname image nick _id').sort('-created_at').paginate(page, itemsPerPage, (err, messages, total) => {
 
         if(err) return res.status(500).send({messages: 'Error en la petición'});
         if(!messages) return res.status(404).send({messages: 'No hay mensajes'});
@@ -97,7 +97,6 @@ function getUnviewedMessages(req, res){
         return res.status(200).send({
             'unviwed': count
         });
-
     })
 
 }
@@ -119,7 +118,7 @@ module.exports = {
     probando,
     saveMessage,
     getReceivedMessages,
-    getEmmiterMessage,
+    getEmitterMessages,
     getUnviewedMessages,
     setViewedMessages
 }

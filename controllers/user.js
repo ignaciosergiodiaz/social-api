@@ -10,7 +10,7 @@ const Publication = require('../models/publication');
 
 const fs = require('fs');
 const path = require('path');
-const { response } = require('../app');
+// const { response } = require('../app');
 
 const home = ((req, res) => {
 
@@ -160,9 +160,7 @@ const followThisUser = async (identity_user_id, user_id) => {
        following:following,
         followed:followed
     }
-
 }
-
 
 const getUsers = (req, res) => {
 
@@ -215,7 +213,7 @@ async function followUsersIds(user_id){
             .catch((err) => {
                 return handleError(err);
             });
- 
+  
         var followed = await Follow.find({ 'followed': user_id }).select({ '_id': 0, '__v': 0, 'followed': 0 }).exec()
             .then((follows) => {
  
@@ -230,9 +228,6 @@ async function followUsersIds(user_id){
                 return handleError(err);
             });
 
-        console.log(following)
-            
- 
         return {
             following: following,
             followed: followed
@@ -309,12 +304,11 @@ const updateUser = (req, res) =>{
     User.findOne({
         $or:[
             {email: update.email.toLowerCase},
-            {nickname: update.nickname.toLowerCase}
+            {nick: update.nick.toLowerCase}
         ]
     }).exec((error, user) => {
 
-        if(user && user._id != userId ) return response.status(500).send({message: "Email o password no disponibles"});
-
+        if(user && user._id != userId ) return res.status(500).send({message: "Email o password no disponibles"});
 
         User.findByIdAndUpdate(userId, update, {new:true}, (err, userUpdated) => {
 
@@ -326,7 +320,6 @@ const updateUser = (req, res) =>{
         });
 
     })  
-
 
 };
 
@@ -342,7 +335,7 @@ const uploadImage = (req, res) => {
         let ext_split = file_name.split('\.')
         let file_ext = ext_split[1];
 
-        console.log(file_ext);
+        // console.log(file_ext);
 
     if (userId != req.user.sub) { 
         removeFilesOfUploads(res, file_path, "No tienes permisos para actualizar los datos del usuario");
